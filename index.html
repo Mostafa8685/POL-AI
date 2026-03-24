@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <meta name="theme-color" content="#050505">
+    <title>POL AI | MSK Organization</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Tajawal', 'sans-serif'] },
+                    colors: {
+                        brand: { 400: '#60a5fa', 500: '#3b82f6', 600: '#2563eb' },
+                        dark: { 950: '#050505', 900: '#0f1115', 800: '#1a1d24' }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
+        body {
+            background: #050505;
+            background-image: radial-gradient(circle at 50% 0%, #1a1d24 0%, #050505 100%);
+            color: #fff;
+            font-family: 'Tajawal', sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        .glass-card {
+            background: rgba(15, 17, 21, 0.6);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 24px;
+        }
+        
+        .input-premium {
+            background: rgba(0,0,0,0.4);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 16px;
+            padding: 12px 16px;
+            color: white;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        .input-premium:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            border-radius: 20px;
+            padding: 12px 20px;
+            font-weight: bold;
+            transition: all 0.2s;
+            cursor: pointer;
+            text-align: center;
+        }
+        
+        .btn-primary:active { transform: scale(0.98); }
+        .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+        
+        .loader {
+            width: 30px;
+            height: 30px;
+            border: 3px solid #3b82f6;
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #3b82f6; border-radius: 10px; }
+        
+        .user-avatar { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; border: 2px solid #3b82f6; }
+        
+        .nav-tab {
+            padding: 8px 16px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: #9ca3af;
+        }
+        .nav-tab.active {
+            background: rgba(59, 130, 246, 0.1);
+            color: #60a5fa;
+            border: 1px solid rgba(59, 130, 246, 0.2);
+        }
+
+        .chat-bubble-user {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            border-radius: 16px 16px 0 16px;
+            padding: 12px 16px;
+            max-width: 80%;
+            margin-right: auto;
+            margin-bottom: 12px;
+        }
+
+        .chat-bubble-ai {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px 16px 16px 0;
+            padding: 12px 16px;
+            max-width: 85%;
+            margin-left: auto;
+            margin-bottom: 12px;
+        }
+
+        [dir="ltr"] .chat-bubble-user { border-radius: 16px 16px 16px 0; margin-right: 0; margin-left: auto; }
+        [dir="ltr"] .chat-bubble-ai { border-radius: 16px 16px 0 16px; margin-left: 0; margin-right: auto; }
+        
+        .lang-btn { background: transparent; border: 1px solid rgba(255,255,255,0.2); border-radius: 12px; padding: 4px 10px; font-size: 11px; cursor: pointer; transition: all 0.2s; }
+        .lang-btn.active { background: #3b82f6; border-color: #3b82f6; }
+        
+        .daily-reward { animation: pulseGlow 2s infinite; }
+        @keyframes pulseGlow { 
+            0% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4); } 
+            70% { box-shadow: 0 0 0 10px rgba(245, 158, 11, 0); } 
+            100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); } 
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Auth Screen -->
+    <div id="authScreen" class="fixed inset-0 flex items-center justify-center z-50 px-4" style="background: #050505;">
+        <div class="glass-card p-8 max-w-md w-full text-center">
+            <div class="w-24 h-24 bg-gradient-to-br from-brand-500 to-blue-700 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg shadow-blue-500/20">
+                <i class="ph-fill ph-brain text-5xl text-white"></i>
+            </div>
+            <h1 class="text-4xl font-black mb-2 tracking-wide">POL<span class="text-brand-400">.</span> AI</h1>
+            <p class="text-gray-400 text-sm mb-6">منصة الذكاء الاصطناعي الشاملة</p>
+            <p class="text-gray-300 text-sm mb-8 leading-relaxed">توليد صور احترافية ومحادثات ذكية متطورة<br><span class="text-brand-400 font-bold mt-1 inline-block">MSK Organization</span></p>
+            
+            <button id="googleLoginBtn" class="w-full bg-white text-black font-bold py-3.5 rounded-xl flex items-center justify-center gap-3 active:scale-95 transition hover:bg-gray-100 shadow-xl">
+                <i class="ph-fill ph-google-logo text-2xl text-blue-600"></i>
+                <span id="loginText" class="text-[15px]">المتابعة باستخدام حساب جوجل</span>
+            </button>
+            <div id="authError" class="text-red-400 text-xs mt-4 hidden bg-red-500/10 p-2 rounded-lg border border-red-500/20"></div>
+        </div>
+    </div>
+
+    <!-- Main App Screen -->
+    <div id="appScreen" class="hidden min-h-screen flex flex-col pb-4">
+        
+        <header class="glass-card sticky top-0 z-40 mx-3 mt-3 px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center gap-3 cursor-pointer" id="brandLogo">
+                <div class="w-10 h-10 bg-gradient-to-br from-brand-500 to-blue-700 rounded-xl flex items-center justify-center shadow-lg">
+                    <i class="ph-bold ph-brain text-xl text-white"></i>
+                </div>
+                <div class="hidden sm:block">
+                    <h1 class="font-bold text-sm tracking-wide">MSK Org</h1>
+                    <p class="text-[9px] text-brand-400 tracking-widest uppercase">POL Intelligence</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-4">
+                <div class="hidden md:flex gap-1 bg-dark-800 p-1 rounded-xl border border-white/5">
+                    <button class="lang-btn active" data-lang="ar">عربي</button>
+                    <button class="lang-btn" data-lang="en">EN</button>
+                </div>
+                
+                <div class="text-right border-r border-white/10 pr-4 rtl:border-r-0 rtl:border-l rtl:pr-0 rtl:pl-4">
+                    <p class="text-[9px] text-gray-400 uppercase tracking-wide" id="pointsLabel">الرصيد</p>
+                    <div class="flex items-center gap-1 justify-end">
+                        <i class="ph-fill ph-coin text-amber-400 text-sm"></i>
+                        <p id="pointsDisplay" class="text-xl font-black text-white">0</p>
+                    </div>
+                </div>
+                
+                <div class="relative group cursor-pointer">
+                    <img id="userAvatar" class="user-avatar" src="">
+                    <div class="absolute top-full left-0 rtl:left-auto rtl:right-0 mt-2 w-32 bg-dark-900 border border-white/10 rounded-xl p-2 hidden group-hover:block shadow-2xl z-50">
+                        <button id="logoutBtn" class="w-full text-right rtl:text-right flex items-center gap-2 text-red-400 hover:bg-red-500/10 p-2 rounded-lg text-xs transition">
+                            <i class="ph-bold ph-sign-out"></i>
+                            <span id="logoutText">تسجيل الخروج</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Navigation Tabs -->
+        <div class="flex justify-center mt-6 mb-2 mx-4">
+            <div class="glass-card p-1.5 flex gap-1 rounded-2xl w-full max-w-sm">
+                <button id="navStudioBtn" class="nav-tab active flex-1 justify-center">
+                    <i class="ph-bold ph-image text-lg"></i>
+                    <span id="navStudioText">الاستوديو</span>
+                </button>
+                <button id="navChatBtn" class="nav-tab flex-1 justify-center">
+                    <i class="ph-bold ph-chat-teardrop-text text-lg"></i>
+                    <span id="navChatText">المحادثة (AI)</span>
+                </button>
+            </div>
+        </div>
+        
+        <main class="flex-1 max-w-6xl w-full mx-auto p-3 relative">
+            
+            <!-- ================= STUDIO SECTION ================= -->
+            <div id="studioSection" class="flex flex-col lg:flex-row gap-4 animate-fade-in">
+                <!-- Left Panel -->
+                <div class="lg:w-1/3 flex flex-col gap-4">
+                    <div class="glass-card p-5">
+                        <button id="dailyRewardBtn" class="daily-reward w-full bg-gradient-to-r from-amber-500 to-orange-600 py-3 rounded-xl flex items-center justify-center gap-2 text-sm font-bold mb-3 shadow-lg transition hover:scale-[1.02]">
+                            <i class="ph-fill ph-gift text-xl"></i>
+                            <span id="dailyRewardText">الهدية اليومية (3 نقاط)</span>
+                        </button>
+                        <p id="dailyRewardTimer" class="text-[11px] text-gray-400 text-center hidden mb-4 flex items-center justify-center gap-1">
+                            <i class="ph-bold ph-hourglass-high"></i> <span id="timerSpan"></span>
+                        </p>
+                        
+                        <!-- Hidden Codes Note: The visual list of codes is removed, keeping only the input -->
+                        <div class="flex gap-2 mt-4">
+                            <div class="relative flex-1">
+                                <i class="ph-bold ph-key absolute top-1/2 -translate-y-1/2 right-3 rtl:right-3 rtl:left-auto text-gray-400"></i>
+                                <input type="text" id="promoInput" placeholder="أدخل الكود السري..." class="input-premium w-full pr-9 rtl:pr-9 rtl:pl-3 text-sm">
+                            </div>
+                            <button id="redeemBtn" class="bg-white text-black px-4 py-2 rounded-xl font-bold text-sm hover:bg-gray-200 transition">تفعيل</button>
+                        </div>
+                        <div id="promoMessage" class="text-xs mt-3 hidden text-center font-bold flex items-center justify-center gap-1"></div>
+                    </div>
+                    
+                    <div class="glass-card p-5 flex-1 flex flex-col">
+                        <h2 class="font-bold text-base mb-4 flex items-center gap-2 text-brand-400">
+                            <i class="ph-fill ph-magic-wand text-xl"></i> 
+                            <span id="studioTitle">توليد الصور</span>
+                        </h2>
+                        
+                        <textarea id="promptInput" rows="4" placeholder="صف الصورة التي تتخيلها بدقة..." class="input-premium w-full resize-none text-sm mb-4 flex-1"></textarea>
+                        
+                        <div class="relative mb-4">
+                            <i class="ph-bold ph-faders absolute top-1/2 -translate-y-1/2 right-3 rtl:right-3 rtl:left-auto text-brand-400 pointer-events-none"></i>
+                            <select id="modelSelect" class="input-premium w-full appearance-none pr-9 rtl:pr-9 rtl:pl-3 text-sm cursor-pointer">
+                                <option value="creative">نمط إبداعي (Creative)</option>
+                                <option value="realistic">نمط واقعي (Photorealistic)</option>
+                                <option value="anime">نمط رسومي (Anime/Art)</option>
+                            </select>
+                        </div>
+                        
+                        <button id="generateBtn" class="btn-primary w-full py-3.5 flex items-center justify-center gap-2 shadow-lg shadow-blue-500/20">
+                            <i class="ph-bold ph-sparkle text-xl"></i>
+                            <span id="generateText">توليد الصورة (1 نقطة)</span>
+                        </button>
+                        <div id="generateError" class="text-red-400 text-xs text-center mt-3 hidden flex items-center justify-center gap-1"></div>
+                    </div>
+                </div>
+                
+                <!-- Right Panel -->
+                <div class="lg:w-2/3 flex flex-col gap-4">
+                    <!-- Main Canvas -->
+                    <div class="glass-card p-2 flex items-center justify-center relative overflow-hidden bg-dark-900/50" style="min-height: 400px;">
+                        <div id="emptyState" class="text-center opacity-60">
+                            <i class="ph-thin ph-image text-6xl text-gray-500 mb-3 block mx-auto"></i>
+                            <p class="text-gray-400 text-sm" id="emptyText">اللوحة القماشية تنتظر إبداعك</p>
+                        </div>
+                        <div id="loadingState" class="hidden absolute inset-0 bg-dark-950/80 backdrop-blur-sm flex flex-col items-center justify-center z-10">
+                            <div class="loader mb-4 border-t-brand-400 border-r-brand-400"></div>
+                            <p class="text-brand-400 text-sm font-bold tracking-wide" id="loadingText">جاري معالجة التحفة الفنية...</p>
+                        </div>
+                        <img id="resultImage" class="hidden w-full h-full max-h-[500px] object-contain rounded-xl shadow-2xl">
+                        <div id="downloadOverlay" class="hidden absolute bottom-4 left-4 rtl:left-4 rtl:right-auto z-20">
+                            <button id="downloadBtn" class="bg-white text-black w-12 h-12 rounded-full shadow-2xl hover:scale-110 transition duration-300 flex items-center justify-center">
+                                <i class="ph-bold ph-download-simple text-2xl"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Gallery -->
+                    <div class="glass-card p-5">
+                        <div class="flex items-center justify-between mb-4">
+                            <h2 class="font-bold text-sm flex items-center gap-2 text-gray-300">
+                                <i class="ph-fill ph-images text-lg text-brand-400"></i> 
+                                <span id="galleryTitle">سجل أعمالك</span>
+                            </h2>
+                            <span id="totalCount" class="text-xs text-gray-500 font-bold bg-dark-800 px-2 py-1 rounded-md">0</span>
+                        </div>
+                        <div id="galleryGrid" class="grid grid-cols-4 sm:grid-cols-6 gap-3 max-h-32 overflow-y-auto pr-1"></div>
+                        <div id="emptyGallery" class="text-center py-6 text-gray-500 hidden opacity-60">
+                            <i class="ph-thin ph-archive-tray text-4xl mb-2 block mx-auto"></i>
+                            <span id="noImagesText" class="text-xs">لا توجد أعمال سابقة</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================= CHAT SECTION ================= -->
+            <div id="chatSection" class="hidden flex-col lg:flex-row gap-4 h-[calc(100vh-180px)] min-h-[500px] animate-fade-in">
+                <!-- Chat settings / Sidebar -->
+                <div class="lg:w-1/4 flex flex-col gap-4">
+                    <div class="glass-card p-5 flex-1">
+                        <h2 class="font-bold text-base mb-4 flex items-center gap-2 text-brand-400">
+                            <i class="ph-fill ph-cpu text-xl"></i>
+                            <span id="chatSettingsTitle">نموذج الذكاء</span>
+                        </h2>
+                        
+                        <div class="space-y-3">
+                            <label class="flex items-center gap-3 p-3 rounded-xl border border-brand-500/30 bg-brand-500/10 cursor-pointer transition hover:bg-brand-500/20">
+                                <input type="radio" name="ai_model" value="deepseek" checked class="accent-brand-500">
+                                <div class="flex flex-col">
+                                    <span class="font-bold text-sm">DeepSeek Coder</span>
+                                    <span class="text-[10px] text-gray-400">منطق متقدم وبرمجة</span>
+                                </div>
+                            </label>
+                            
+                            <label class="flex items-center gap-3 p-3 rounded-xl border border-white/10 bg-dark-800 cursor-pointer transition hover:bg-dark-700">
+                                <input type="radio" name="ai_model" value="llama">
+                                <div class="flex flex-col">
+                                    <span class="font-bold text-sm text-gray-300">Llama 3</span>
+                                    <span class="text-[10px] text-gray-500">محادثة عامة وإبداع</span>
+                                </div>
+                            </label>
+                        </div>
+
+                        <div class="mt-6 bg-blue-500/10 border border-blue-500/20 p-3 rounded-xl">
+                            <p class="text-xs text-blue-300 flex gap-2 items-start">
+                                <i class="ph-fill ph-info text-lg shrink-0"></i>
+                                <span id="chatNoticeText">المحادثة مجانية ولا تخصم من نقاط الصور الخاصة بك.</span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chat Area -->
+                <div class="lg:w-3/4 flex flex-col glass-card overflow-hidden">
+                    <div class="p-4 border-b border-white/10 bg-dark-900/50 flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-brand-500 to-purple-600 flex items-center justify-center">
+                            <i class="ph-bold ph-robot text-xl text-white"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-sm" id="chatHeaderName">DeepSeek AI</h3>
+                            <p class="text-[10px] text-green-400 flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-green-400 block"></span> متصل وجاهز</p>
+                        </div>
+                        <button id="clearChatBtn" class="mr-auto rtl:mr-auto rtl:ml-0 ml-auto bg-dark-800 hover:bg-dark-700 p-2 rounded-lg text-gray-400 transition" title="مسح المحادثة">
+                            <i class="ph-bold ph-trash"></i>
+                        </button>
+                    </div>
+                    
+                    <div id="chatMessages" class="flex-1 overflow-y-auto p-5 flex flex-col gap-2">
+                        <!-- Initial Message -->
+                        <div class="chat-bubble-ai flex gap-3 items-start">
+                            <i class="ph-fill ph-robot text-brand-400 text-xl shrink-0 mt-1"></i>
+                            <p class="text-sm leading-relaxed" id="welcomeChatText">أهلاً بك! أنا المساعد الذكي. كيف يمكنني مساعدتك اليوم؟</p>
+                        </div>
+                    </div>
+                    
+                    <div class="p-3 bg-dark-900/80 border-t border-white/5">
+                        <div class="flex gap-2 relative">
+                            <textarea id="chatInput" rows="1" placeholder="اكتب رسالتك هنا..." class="input-premium w-full resize-none py-3 pr-4 pl-12 rtl:pl-4 rtl:pr-12 text-sm max-h-32 overflow-y-auto rounded-xl"></textarea>
+                            <button id="sendChatBtn" class="absolute left-1.5 rtl:left-1.5 rtl:right-auto bottom-1.5 bg-brand-500 text-white w-9 h-9 flex items-center justify-center rounded-lg hover:bg-brand-600 transition disabled:opacity-50">
+                                <i class="ph-bold ph-paper-plane-right rtl:rotate-180"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Firebase & Logic -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, signInWithCustomToken, signInAnonymously, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc, collection, onSnapshot, addDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        
+        // --- System API Key (Used for Text & Image Gen fallback in sandbox) ---
+        const apiKey = ""; 
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
+            apiKey: "mock", authDomain: "mock", projectId: "mock", storageBucket: "mock", messagingSenderId: "mock", appId: "mock"
+        };
+        const appId = typeof __app_id !== 'undefined' ? __app_id : "pol-msk-app";
+        
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const googleProvider = new GoogleAuthProvider();
+        
+        // --- DOM Elements ---
+        const authScreen = document.getElementById('authScreen');
+        const appScreen = document.getElementById('appScreen');
+        const googleLoginBtn = document.getElementById('googleLoginBtn');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const authError = document.getElementById('authError');
+        
+        const pointsDisplay = document.getElementById('pointsDisplay');
+        const totalCount = document.getElementById('totalCount');
+        const userAvatar = document.getElementById('userAvatar');
+        
+        // Studio Elements
+        const promoInput = document.getElementById('promoInput');
+        const redeemBtn = document.getElementById('redeemBtn');
+        const promoMessage = document.getElementById('promoMessage');
+        const promptInput = document.getElementById('promptInput');
+        const modelSelect = document.getElementById('modelSelect');
+        const generateBtn = document.getElementById('generateBtn');
+        const generateError = document.getElementById('generateError');
+        const emptyState = document.getElementById('emptyState');
+        const loadingState = document.getElementById('loadingState');
+        const resultImage = document.getElementById('resultImage');
+        const downloadOverlay = document.getElementById('downloadOverlay');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const galleryGrid = document.getElementById('galleryGrid');
+        const emptyGallery = document.getElementById('emptyGallery');
+        const dailyRewardBtn = document.getElementById('dailyRewardBtn');
+        const dailyRewardTimer = document.getElementById('dailyRewardTimer');
+        const timerSpan = document.getElementById('timerSpan');
+        
+        // Navigation Elements
+        const navStudioBtn = document.getElementById('navStudioBtn');
+        const navChatBtn = document.getElementById('navChatBtn');
+        const studioSection = document.getElementById('studioSection');
+        const chatSection = document.getElementById('chatSection');
+        
+        // Chat Elements
+        const chatInput = document.getElementById('chatInput');
+        const sendChatBtn = document.getElementById('sendChatBtn');
+        const chatMessages = document.getElementById('chatMessages');
+        const chatHeaderName = document.getElementById('chatHeaderName');
+        const clearChatBtn = document.getElementById('clearChatBtn');
+        const modelRadios = document.getElementsByName('ai_model');
+
+        let currentUser = null;
+        let isGenerating = false;
+        let isChatting = false;
+        let chatHistory = [];
+        let profileUnsubscribe = null;
+        let galleryUnsubscribe = null;
+        
+        // --- MULTI LANGUAGE ---
+        const translations = {
+            ar: {
+                login: "المتابعة باستخدام حساب جوجل", points: "الرصيد", studio: "توليد الصور",
+                generate: "توليد الصورة (1 نقطة)", empty: "اللوحة القماشية تنتظر إبداعك", loading: "جاري معالجة التحفة الفنية...",
+                gallery: "سجل أعمالك", noImages: "لا توجد أعمال سابقة", daily: "الهدية اليومية (3 نقاط)",
+                navStudio: "الاستوديو", navChat: "المحادثة (AI)", logout: "تسجيل الخروج",
+                chatWelcome: "أهلاً بك! أنا المساعد الذكي. كيف يمكنني مساعدتك اليوم؟",
+                chatNotice: "المحادثة مجانية ولا تخصم من نقاط الصور الخاصة بك.",
+                chatSettings: "نموذج الذكاء"
+            },
+            en: {
+                login: "Continue with Google", points: "Balance", studio: "Image Generation",
+                generate: "Generate (1 Point)", empty: "Canvas awaits your creativity", loading: "Processing masterpiece...",
+                gallery: "Your Gallery", noImages: "No previous work", daily: "Daily Reward (3 points)",
+                navStudio: "Studio", navChat: "AI Chat", logout: "Logout",
+                chatWelcome: "Hello! I am your AI assistant. How can I help you today?",
+                chatNotice: "Chatting is free and does not consume your image points.",
+                chatSettings: "AI Model"
+            }
+        };
+        
+        let currentLang = localStorage.getItem('lang') || 'ar';
+        
+        function updateLanguage() {
+            const t = translations[currentLang];
+            document.getElementById('loginText') && (document.getElementById('loginText').innerText = t.login);
+            document.getElementById('pointsLabel') && (document.getElementById('pointsLabel').innerText = t.points);
+            document.getElementById('studioTitle') && (document.getElementById('studioTitle').innerText = t.studio);
+            document.getElementById('generateText') && (document.getElementById('generateText').innerText = t.generate);
+            document.getElementById('emptyText') && (document.getElementById('emptyText').innerText = t.empty);
+            document.getElementById('loadingText') && (document.getElementById('loadingText').innerText = t.loading);
+            document.getElementById('galleryTitle') && (document.getElementById('galleryTitle').innerText = t.gallery);
+            document.getElementById('noImagesText') && (document.getElementById('noImagesText').innerText = t.noImages);
+            document.getElementById('dailyRewardText') && (document.getElementById('dailyRewardText').innerText = t.daily);
+            document.getElementById('navStudioText') && (document.getElementById('navStudioText').innerText = t.navStudio);
+            document.getElementById('navChatText') && (document.getElementById('navChatText').innerText = t.navChat);
+            document.getElementById('logoutText') && (document.getElementById('logoutText').innerText = t.logout);
+            document.getElementById('welcomeChatText') && (document.getElementById('welcomeChatText').innerText = t.chatWelcome);
+            document.getElementById('chatNoticeText') && (document.getElementById('chatNoticeText').innerText = t.chatNotice);
+            document.getElementById('chatSettingsTitle') && (document.getElementById('chatSettingsTitle').innerText = t.chatSettings);
+            
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                if (btn.dataset.lang === currentLang) btn.classList.add('active');
+                else btn.classList.remove('active');
+            });
+
+            document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
+        }
+        
+        document.querySelectorAll('.lang-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                currentLang = btn.dataset.lang;
+                localStorage.setItem('lang', currentLang);
+                updateLanguage();
+            });
+        });
+        
+        // --- NAVIGATION LOGIC ---
+        navStudioBtn.addEventListener('click', () => {
+            navStudioBtn.classList.add('active');
+            navChatBtn.classList.remove('active');
+            studioSection.classList.remove('hidden');
+            chatSection.classList.add('hidden');
+        });
+
+        navChatBtn.addEventListener('click', () => {
+            navChatBtn.classList.add('active');
+            navStudioBtn.classList.remove('active');
+            chatSection.classList.remove('hidden');
+            studioSection.classList.add('hidden');
+        });
+
+        // Chat Model Selection UI logic
+        modelRadios.forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                document.querySelectorAll('input[name="ai_model"]').forEach(r => {
+                    r.closest('label').classList.remove('border-brand-500/30', 'bg-brand-500/10');
+                    r.closest('label').classList.add('border-white/10', 'bg-dark-800');
+                });
+                const selectedLabel = e.target.closest('label');
+                selectedLabel.classList.remove('border-white/10', 'bg-dark-800');
+                selectedLabel.classList.add('border-brand-500/30', 'bg-brand-500/10');
+                
+                chatHeaderName.innerText = e.target.value === 'deepseek' ? 'DeepSeek Coder' : 'Llama 3 AI';
+            });
+        });
+        
+        // --- AUTHENTICATION (Real Google Auth) ---
+        googleLoginBtn.addEventListener('click', async () => {
+            try {
+                googleLoginBtn.disabled = true;
+                googleLoginBtn.innerHTML = '<div class="loader scale-50"></div>';
+                
+                // Primary: Try Real Google Popup
+                try {
+                    await signInWithPopup(auth, googleProvider);
+                } catch (popupError) {
+                    console.warn("Popup blocked or failed, using environment fallback.", popupError);
+                    // Fallback for strict sandbox environments
+                    if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                        await signInWithCustomToken(auth, __initial_auth_token);
+                    } else {
+                        await signInAnonymously(auth);
+                    }
+                }
+            } catch (error) {
+                authError.innerHTML = `<i class="ph-bold ph-warning-circle"></i> فشل تسجيل الدخول.`;
+                authError.classList.remove('hidden');
+                googleLoginBtn.disabled = false;
+                googleLoginBtn.innerHTML = `<i class="ph-fill ph-google-logo text-2xl text-blue-600"></i><span id="loginText" class="text-[15px]">${translations[currentLang].login}</span>`;
+            }
+        });
+        
+        logoutBtn.addEventListener('click', () => {
+            if(profileUnsubscribe) profileUnsubscribe();
+            if(galleryUnsubscribe) galleryUnsubscribe();
+            signOut(auth);
+        });
+        
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                currentUser = user;
+                const colors = ['3b82f6', 'f59e0b', '10b981', 'ec4899', '8b5cf6'];
+                const color = colors[user.uid.charCodeAt(0) % colors.length];
+                userAvatar.src = user.photoURL || `https://ui-avatars.com/api/?background=${color}&color=fff&name=` + (user.displayName || 'U');
+                
+                authScreen.style.display = 'none';
+                appScreen.style.display = 'flex';
+                
+                await initUserData(user.uid);
+                setupGalleryListener(user.uid);
+                checkDailyReward(user.uid);
+                updateLanguage();
+            } else {
+                currentUser = null;
+                authScreen.style.display = 'flex';
+                appScreen.style.display = 'none';
+            }
+        });
+        
+        // --- USER DATA & FIRESTORE ---
+        async function initUserData(uid) {
+            const profileRef = doc(db, 'artifacts', appId, 'users', uid, 'profile');
+            try {
+                const docSnap = await getDoc(profileRef);
+                if (!docSnap.exists()) {
+                    await setDoc(profileRef, { points: 10, generatedCount: 0, usedCodes: [], lastDailyReward: 0 });
+                }
+                
+                profileUnsubscribe = onSnapshot(profileRef, (docSnap) => {
+                    const data = docSnap.data();
+                    if (data) {
+                        const isUnlimited = data.points >= 99999;
+                        pointsDisplay.innerText = isUnlimited ? '∞' : data.points;
+                        totalCount.innerText = data.generatedCount || 0;
+                        generateBtn.disabled = (data.points < 1 && !isUnlimited);
+                    }
+                });
+            } catch(e) { console.error("Init data error", e); }
+        }
+        
+        function setupGalleryListener(uid) {
+            const galleryRef = collection(db, 'artifacts', appId, 'users', uid, 'gallery');
+            galleryUnsubscribe = onSnapshot(query(galleryRef, orderBy('timestamp', 'desc')), (snapshot) => {
+                const images = [];
+                snapshot.forEach(doc => images.push({ id: doc.id, ...doc.data() }));
+                renderGallery(images);
+            });
+        }
+        
+        function renderGallery(images) {
+            galleryGrid.innerHTML = '';
+            if (images.length === 0) { 
+                emptyGallery.classList.remove('hidden'); 
+                return; 
+            }
+            emptyGallery.classList.add('hidden');
+            
+            images.forEach(img => {
+                const div = document.createElement('div');
+                div.className = 'aspect-square rounded-xl overflow-hidden cursor-pointer border border-white/5 hover:border-brand-500 transition shadow-lg relative group';
+                div.innerHTML = `
+                    <img src="${img.url}" class="w-full h-full object-cover">
+                    <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition backdrop-blur-sm">
+                        <i class="ph-bold ph-eye text-2xl text-white"></i>
+                    </div>
+                `;
+                div.addEventListener('click', () => {
+                    resultImage.src = img.fullUrl || img.url;
+                    resultImage.classList.remove('hidden');
+                    emptyState.classList.add('hidden');
+                    downloadOverlay.classList.remove('hidden');
+                    downloadBtn.onclick = () => { 
+                        const a = document.createElement('a'); 
+                        a.href = img.fullUrl || img.url; 
+                        a.download = `POL_AI_${img.timestamp}.jpg`; 
+                        a.click(); 
+                    };
+                });
+                galleryGrid.appendChild(div);
+            });
+        }
+        
+        // --- DAILY REWARD ---
+        async function checkDailyReward(uid) {
+            const profileRef = doc(db, 'artifacts', appId, 'users', uid, 'profile');
+            const docSnap = await getDoc(profileRef);
+            if (!docSnap.exists()) return;
+            
+            const data = docSnap.data();
+            const lastReward = data.lastDailyReward || 0;
+            
+            const updateTimer = () => {
+                const now = Date.now();
+                const hoursPassed = (now - lastReward) / (1000 * 60 * 60);
+                if (hoursPassed >= 24) {
+                    dailyRewardBtn.disabled = false;
+                    dailyRewardBtn.classList.remove('opacity-50', 'grayscale');
+                    dailyRewardTimer.classList.add('hidden');
+                } else {
+                    dailyRewardBtn.disabled = true;
+                    dailyRewardBtn.classList.add('opacity-50', 'grayscale');
+                    const msLeft = (lastReward + 86400000) - now;
+                    const h = Math.floor(msLeft / 3600000);
+                    const m = Math.floor((msLeft % 3600000) / 60000);
+                    timerSpan.innerText = `${h}h ${m}m`;
+                    dailyRewardTimer.classList.remove('hidden');
+                    setTimeout(updateTimer, 60000); // Update every minute
+                }
+            };
+            updateTimer();
+        }
+        
+        dailyRewardBtn.addEventListener('click', async () => {
+            if (!currentUser) return;
+            const profileRef = doc(db, 'artifacts', appId, 'users', currentUser.uid, 'profile');
+            const docSnap = await getDoc(profileRef);
+            const data = docSnap.data();
+            const lastReward = data.lastDailyReward || 0;
+            
+            if (Date.now() - lastReward >= 86400000) { 
+                const newPoints = data.points >= 99999 ? data.points : data.points + 3;
+                await setDoc(profileRef, { ...data, points: newPoints, lastDailyReward: Date.now() });
+                showMessage(promoMessage, currentLang === 'ar' ? 'تم إضافة 3 نقاط بنجاح!' : '+3 Points added!', 'success');
+                checkDailyReward(currentUser.uid);
+            }
+        });
+        
+        // --- HIDDEN PROMO CODES ---
+        // The codes are hidden from UI but work here perfectly.
+        const PROMO_CODES = {
+            'hjkl': { points: 999999, msg: 'تم تفعيل نقاط لا نهائية!', isInfinite: true },
+            '10': { points: 10, msg: 'تم إضافة 10 نقاط', isInfinite: false },
+            'mklpol': { points: 5, msg: 'تم إضافة 5 نقاط', isInfinite: false },
+            'pol2025': { points: 20, msg: 'تم إضافة 20 نقطة', isInfinite: false }
+        };
+        
+        redeemBtn.addEventListener('click', async () => {
+            if (!currentUser) return;
+            const code = promoInput.value.trim().toLowerCase();
+            if (!code) return;
+            
+            redeemBtn.disabled = true;
+            redeemBtn.innerHTML = '<div class="loader scale-50"></div>';
+            
+            try {
+                const profileRef = doc(db, 'artifacts', appId, 'users', currentUser.uid, 'profile');
+                const docSnap = await getDoc(profileRef);
+                const data = docSnap.data();
+                const usedCodes = data.usedCodes || [];
+                
+                if (usedCodes.includes(code)) {
+                    showMessage(promoMessage, currentLang === 'ar' ? 'الكود مستخدم مسبقاً' : 'Code already used', 'error');
+                } else if (!PROMO_CODES[code]) {
+                    showMessage(promoMessage, currentLang === 'ar' ? 'كود غير صالح' : 'Invalid code', 'error');
+                } else {
+                    const promo = PROMO_CODES[code];
+                    const newPoints = promo.isInfinite ? 999999 : data.points + promo.points;
+                    await setDoc(profileRef, { ...data, points: newPoints, usedCodes: [...usedCodes, code] });
+                    showMessage(promoMessage, promo.msg, 'success', 'ph-check-circle');
+                    promoInput.value = '';
+                }
+            } catch (err) {
+                showMessage(promoMessage, 'خطأ في الاتصال', 'error');
+            }
+            redeemBtn.disabled = false;
+            redeemBtn.innerHTML = currentLang === 'ar' ? 'تفعيل' : 'Redeem';
+        });
+
+        // --- API HELPERS ---
+        async function fetchWithRetry(url, options, maxRetries = 4) {
+            const delays = [1000, 2000, 4000, 8000];
+            for (let i = 0; i < maxRetries; i++) {
+                try {
+                    const res = await fetch(url, options);
+                    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                    return await res.json();
+                } catch (error) {
+                    if (i === maxRetries - 1) throw error;
+                    await new Promise(resolve => setTimeout(resolve, delays[i]));
+                }
+            }
+        }
+        
+        // --- IMAGE GENERATION (Imagen 4.0) ---
+        generateBtn.addEventListener('click', async () => {
+            if (!currentUser || isGenerating) return;
+            const prompt = promptInput.value.trim();
+            if (!prompt) { 
+                showMessage(generateError, currentLang === 'ar' ? 'يرجى كتابة وصف للصورة' : 'Please enter a prompt', 'error'); 
+                return; 
+            }
+            
+            const profileRef = doc(db, 'artifacts', appId, 'users', currentUser.uid, 'profile');
+            const docSnap = await getDoc(profileRef);
+            const userData = docSnap.data();
+            const isUnlimited = userData.points >= 99999;
+            
+            if (userData.points < 1 && !isUnlimited) {
+                showMessage(generateError, currentLang === 'ar' ? 'رصيد غير كافٍ' : 'Insufficient balance', 'error');
+                return;
+            }
+            
+            isGenerating = true;
+            generateBtn.disabled = true;
+            emptyState.classList.add('hidden');
+            resultImage.classList.add('hidden');
+            downloadOverlay.classList.add('hidden');
+            loadingState.classList.remove('hidden');
+            
+            try {
+                let enhancedPrompt = prompt;
+                const modelStyle = modelSelect.value;
+                if (modelStyle === 'realistic') enhancedPrompt = `photorealistic, highly detailed, 8k resolution, cinematic lighting: ${prompt}`;
+                else if (modelStyle === 'anime') enhancedPrompt = `anime artwork, studio ghibli style, vibrant colors: ${prompt}`;
+                else enhancedPrompt = `highly creative, artistic masterpiece, trending on artstation: ${prompt}`;
+                
+                const result = await fetchWithRetry(
+                    `https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-generate-001:predict?key=${apiKey}`, 
+                    { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ instances: [{ prompt: enhancedPrompt }], parameters: { sampleCount: 1 } }) }
+                );
+                
+                const base64Data = result.predictions?.[0]?.bytesBase64Encoded;
+                if (!base64Data) throw new Error('No image generated');
+                
+                const imgSrc = `data:image/jpeg;base64,${base64Data}`;
+                
+                const img = new Image();
+                img.onload = async () => {
+                    try {
+                        const canvas = document.createElement('canvas');
+                        canvas.width = img.width; canvas.height = img.height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0);
+                        
+                        // Clean Watermark
+                        ctx.font = `bold ${Math.floor(img.width * 0.03)}px sans-serif`;
+                        ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+                        ctx.textAlign = 'right';
+                        ctx.fillText('POL AI', img.width - 20, img.height - 20);
+                        
+                        const finalFullUrl = canvas.toDataURL('image/jpeg', 0.85); 
+                        
+                        const thumbCanvas = document.createElement('canvas');
+                        const thumbWidth = 250;
+                        const thumbHeight = (img.height / img.width) * thumbWidth;
+                        thumbCanvas.width = thumbWidth; thumbCanvas.height = thumbHeight;
+                        thumbCanvas.getContext('2d').drawImage(canvas, 0, 0, thumbWidth, thumbHeight);
+                        const thumbUrl = thumbCanvas.toDataURL('image/jpeg', 0.6);
+                        
+                        const newPoints = isUnlimited ? userData.points : userData.points - 1;
+                        await setDoc(profileRef, { ...userData, points: newPoints, generatedCount: (userData.generatedCount || 0) + 1 });
+                        
+                        const galleryRef = collection(db, 'artifacts', appId, 'users', currentUser.uid, 'gallery');
+                        await addDoc(galleryRef, { url: thumbUrl, fullUrl: finalFullUrl, prompt: prompt, timestamp: Date.now() });
+                        
+                        resultImage.src = finalFullUrl;
+                        resultImage.classList.remove('hidden');
+                        downloadOverlay.classList.remove('hidden');
+                        
+                        downloadBtn.onclick = () => { 
+                            const a = document.createElement('a'); a.href = finalFullUrl; a.download = `POL_AI_${Date.now()}.jpg`; a.click(); 
+                        };
+                    } catch (e) {
+                        resultImage.src = imgSrc;
+                        resultImage.classList.remove('hidden');
+                    } finally {
+                        loadingState.classList.add('hidden');
+                        generateBtn.disabled = false;
+                        isGenerating = false;
+                    }
+                };
+                img.src = imgSrc;
+
+            } catch (err) {
+                showMessage(generateError, currentLang === 'ar' ? 'فشل التوليد، حاول مرة أخرى' : 'Failed, try again.', 'error');
+                emptyState.classList.remove('hidden');
+                loadingState.classList.add('hidden');
+                generateBtn.disabled = false;
+                isGenerating = false;
+            }
+        });
+
+        // --- AI CHAT LOGIC ---
+        // Note: For demonstration and reliability in this environment, we route all text requests 
+        // to the available Gemini Text model. You can replace the fetch URL if you have custom 
+        // Llama/DeepSeek API endpoints later.
+        function addMessageToUI(text, isUser) {
+            const div = document.createElement('div');
+            div.className = isUser ? 'chat-bubble-user' : 'chat-bubble-ai';
+            if (!isUser) {
+                div.classList.add('flex', 'gap-3', 'items-start');
+                div.innerHTML = `
+                    <i class="ph-fill ph-robot text-brand-400 text-xl shrink-0 mt-1"></i>
+                    <div class="text-sm leading-relaxed whitespace-pre-wrap">${text}</div>
+                `;
+            } else {
+                div.innerHTML = `<p class="text-sm leading-relaxed whitespace-pre-wrap">${text}</p>`;
+            }
+            chatMessages.appendChild(div);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        async function handleSendChat() {
+            const text = chatInput.value.trim();
+            if (!text || isChatting) return;
+
+            chatInput.value = '';
+            chatInput.style.height = 'auto'; // reset textarea height
+            
+            addMessageToUI(text, true);
+            chatHistory.push({ role: "user", parts: [{ text: text }] });
+            
+            isChatting = true;
+            sendChatBtn.disabled = true;
+            sendChatBtn.innerHTML = '<div class="loader scale-50 border-t-white border-r-white"></div>';
+
+            try {
+                const selectedModel = document.querySelector('input[name="ai_model"]:checked').value;
+                const persona = selectedModel === 'deepseek' ? 
+                    "You are DeepSeek Coder, an advanced AI programming assistant. Reply in Arabic." : 
+                    "You are Llama 3, a highly creative and conversational AI assistant. Reply in Arabic.";
+
+                // USING GEMINI AS BACKEND TO SIMULATE DEEPSEEK/LLAMA IN THIS SANDBOX
+                // To use real APIs, replace this fetch call with your endpoints.
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+                
+                const response = await fetchWithRetry(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: chatHistory,
+                        systemInstruction: { parts: [{ text: persona }] }
+                    })
+                });
+
+                const replyText = response.candidates?.[0]?.content?.parts?.[0]?.text;
+                if (!replyText) throw new Error("No response");
+
+                addMessageToUI(replyText, false);
+                chatHistory.push({ role: "model", parts: [{ text: replyText }] });
+
+            } catch (err) {
+                addMessageToUI("عذراً، حدث خطأ في الاتصال بالنموذج. يرجى المحاولة مرة أخرى.", false);
+                chatHistory.pop(); // Remove failed user message 
