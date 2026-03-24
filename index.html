@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#0a0a0b">
+    <title>POL Intelligence | Enterprise Platform</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Tajawal', 'sans-serif'] },
+                    colors: {
+                        brand: { 400: '#818cf8', 500: '#6366f1', 600: '#4f46e5' },
+                        dark: { 950: '#0a0a0b', 900: '#121214', 800: '#18181b', 700: '#27272a' }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <!-- Optimized CSS (No Heavy Blurs) -->
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
+        body {
+            background-color: #0a0a0b;
+            color: #ececf1;
+            font-family: 'Tajawal', sans-serif;
+            overflow: hidden; /* Prevent body scroll */
+        }
+        
+        /* Optimized Panels - Solid colors instead of heavy backdrop-filter */
+        .glass-panel {
+            background-color: #121214;
+            border: 1px solid #27272a;
+            border-radius: 16px;
+        }
+        
+        .input-premium {
+            background: #0a0a0b;
+            border: 1px solid #27272a;
+            border-radius: 12px;
+            padding: 12px 16px;
+            color: white;
+            font-size: 14px;
+            transition: border-color 0.2s;
+        }
+        .input-premium:focus { outline: none; border-color: #6366f1; }
+        
+        .btn-brand {
+            background: #6366f1;
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .btn-brand:active { background: #4f46e5; }
+        .btn-brand:disabled { background: #27272a; color: #a1a1aa; cursor: not-allowed; }
+        
+        /* Chat UI */
+        .chat-bubble-user { background: #27272a; border-radius: 16px 16px 0 16px; padding: 12px 16px; max-width: 85%; margin-right: auto; }
+        .chat-bubble-ai { padding: 12px 0; max-width: 95%; margin-left: auto; }
+
+        /* Loader */
+        .ai-loader {
+            width: 20px; height: 20px;
+            border: 2px solid #27272a; border-top-color: #6366f1;
+            border-radius: 50%; animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        /* Wheel Styles (Optimized) */
+        .wheel-container {
+            position: relative; width: 240px; height: 240px; margin: 0 auto;
+            border-radius: 50%; border: 4px solid #27272a; overflow: hidden; background: #18181b;
+        }
+        .wheel {
+            width: 100%; height: 100%; border-radius: 50%; position: relative;
+            transition: transform 3s cubic-bezier(0.17, 0.67, 0.12, 0.99);
+            background: conic-gradient( #4f46e5 0deg 45deg, #18181b 45deg 90deg, #6366f1 90deg 135deg, #27272a 135deg 180deg, #818cf8 180deg 225deg, #18181b 225deg 270deg, #4f46e5 270deg 315deg, #27272a 315deg 360deg );
+        }
+        .wheel-slice {
+            position: absolute; top: 0; left: 50%; width: 50%; height: 50%;
+            transform-origin: 0% 100%; display: flex; justify-content: center;
+            align-items: center; writing-mode: vertical-rl; padding-bottom: 15px; font-weight: bold; font-size: 14px;
+        }
+        .slice-1 { transform: rotate(22.5deg) translate(-50%, -100%); }
+        .slice-2 { transform: rotate(67.5deg) translate(-50%, -100%); }
+        .slice-3 { transform: rotate(112.5deg) translate(-50%, -100%); }
+        .slice-4 { transform: rotate(157.5deg) translate(-50%, -100%); }
+        .slice-5 { transform: rotate(202.5deg) translate(-50%, -100%); }
+        .slice-6 { transform: rotate(247.5deg) translate(-50%, -100%); }
+        .slice-7 { transform: rotate(292.5deg) translate(-50%, -100%); }
+        .slice-8 { transform: rotate(337.5deg) translate(-50%, -100%); }
+        
+        .wheel-marker {
+            position: absolute; top: -10px; left: 50%; transform: translateX(-50%);
+            width: 0; height: 0; border-left: 10px solid transparent; border-right: 10px solid transparent; border-top: 20px solid #fde047; z-index: 10;
+        }
+        .wheel-center {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 40px; height: 40px; background: #0a0a0b; border-radius: 50%; z-index: 5; display: flex; align-items: center; justify-content: center;
+        }
+
+        /* Nav Tab */
+        .nav-item {
+            display: flex; align-items: center; gap: 12px; padding: 12px 16px;
+            border-radius: 12px; color: #a1a1aa; font-weight: 600; cursor: pointer;
+        }
+        .nav-item.active { background: #1e1e24; color: #818cf8; border: 1px solid #27272a; }
+
+        /* Custom Scrollbar for inner elements */
+        .scrollable::-webkit-scrollbar { width: 4px; }
+        .scrollable::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 4px; }
+    </style>
+</head>
+<body class="flex flex-col h-[100dvh]"> <!-- 100dvh for mobile safari fix -->
+
+    <!-- Login Screen -->
+    <div id="authScreen" class="fixed inset-0 flex items-center justify-center z-[100] px-4 bg-[#0a0a0b]">
+        <div class="glass-panel p-8 max-w-sm w-full text-center">
+            <div class="w-16 h-16 bg-dark-800 rounded-xl flex items-center justify-center mx-auto mb-4 border border-dark-700">
+                <i class="ph-bold ph-hexagon text-3xl text-brand-500"></i>
+            </div>
+            <h1 class="text-2xl font-bold mb-1 text-white">POL Enterprise</h1>
+            <p class="text-gray-400 text-xs mb-8">تسجيل الدخول للمنصة</p>
+            
+            <button id="googleLoginBtn" class="w-full bg-white text-black font-bold py-3 rounded-xl flex items-center justify-center gap-2 active:bg-gray-200">
+                <i class="ph-bold ph-google-logo text-xl"></i> الدخول بحساب جوجل
+            </button>
+            <div id="authError" class="text-red-400 text-xs mt-3 hidden"></div>
+        </div>
+    </div>
+
+    <!-- Fortune Wheel Modal -->
+    <div id="wheelModal" class="fixed inset-0 z-[60] hidden items-center justify-center bg-black/80 px-4">
+        <div class="glass-panel p-6 max-w-sm w-full text-center relative">
+            <button id="closeWheelBtn" class="absolute top-3 right-3 text-gray-400 p-2"><i class="ph-bold ph-x text-lg"></i></button>
+            <h2 class="text-xl font-bold text-white mb-4">عجلة الحظ اليومية</h2>
+            
+            <div class="wheel-container mb-6">
+                <div class="wheel-marker"></div>
+                <div id="wheelInner" class="wheel">
+                    <div class="wheel-slice slice-1">10 نقاط</div>
+                    <div class="wheel-slice slice-2">1 نقطة</div>
+                    <div class="wheel-slice slice-3">5 نقاط</div>
+                    <div class="wheel-slice slice-4">محاولة</div>
+                    <div class="wheel-slice slice-5">20 نقطة</div>
+                    <div class="wheel-slice slice-6">2 نقاط</div>
+                    <div class="wheel-slice slice-7">50 نقطة</div>
+                    <div class="wheel-slice slice-8">3 نقاط</div>
+                </div>
+                <div class="wheel-center"><i class="ph-bold ph-gift text-brand-400"></i></div>
+            </div>
+            
+            <button id="spinWheelBtn" class="btn-brand w-full py-3">تدوير العجلة</button>
+            <p id="wheelTimer" class="text-xs text-brand-400 mt-3 hidden font-bold"></p>
+        </div>
+    </div>
+
+    <!-- Mobile Header -->
+    <header class="md:hidden flex items-center justify-between p-4 bg-[#121214] border-b border-[#27272a] shrink-0">
+        <div class="flex items-center gap-2">
+            <i class="ph-bold ph-hexagon text-brand-500 text-xl"></i>
+            <h1 class="font-bold text-white text-sm">POL AI</h1>
+        </div>
+        <button id="mobileMenuBtn" class="text-white p-2 bg-[#27272a] rounded-lg"><i class="ph-bold ph-list text-lg"></i></button>
+    </header>
+
+    <div class="flex flex-1 overflow-hidden relative">
+        
+        <!-- Sidebar Overlay for Mobile -->
+        <div id="sidebarOverlay" class="fixed inset-0 bg-black/60 z-40 hidden md:hidden"></div>
+
+        <!-- Sidebar Navigation -->
+        <aside id="sidebar" class="absolute right-0 top-0 bottom-0 w-64 md:w-72 bg-[#121214] border-l border-[#27272a] flex flex-col z-50 transform translate-x-full md:translate-x-0 md:relative transition-transform duration-300 ease-in-out">
+            
+            <!-- Desktop Logo (Hidden on mobile) -->
+            <div class="hidden md:flex p-6 items-center gap-3 border-b border-[#27272a]">
+                <div class="w-10 h-10 bg-[#27272a] rounded-lg flex items-center justify-center">
+                    <i class="ph-bold ph-hexagon text-xl text-brand-500"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-white">POL AI</h1>
+                    <p class="text-[10px] text-brand-400">ENTERPRISE</p>
+                </div>
+            </div>
+
+            <!-- Balance Box -->
+            <div class="p-4 border-b border-[#27272a]">
+                <div class="bg-[#0a0a0b] border border-[#27272a] rounded-xl p-3 flex items-center justify-between">
+                    <div>
+                        <p class="text-[10px] text-gray-400 mb-1">الرصيد المتاح</p>
+                        <div class="flex items-center gap-1">
+                            <i class="ph-fill ph-coins text-brand-400"></i>
+                            <span id="pointsDisplay" class="text-xl font-bold text-white">0</span>
+                        </div>
+                    </div>
+                    <button id="openWheelBtn" class="bg-[#27272a] text-brand-400 p-2 rounded-lg"><i class="ph-bold ph-star"></i></button>
+                </div>
+            </div>
+
+            <!-- Nav Links -->
+            <nav class="flex-1 p-3 flex flex-col gap-1 overflow-y-auto scrollable">
+                <div id="navChatBtn" class="nav-item active"><i class="ph-fill ph-chats text-xl"></i><span>المحادثة</span></div>
+                <div id="navStudioBtn" class="nav-item"><i class="ph-fill ph-palette text-xl"></i><span>استوديو الصور</span></div>
+            </nav>
+
+            <!-- User Profile -->
+            <div class="p-4 border-t border-[#27272a]">
+                <div class="flex items-center gap-3">
+                    <img id="userAvatar" src="" class="w-10 h-10 rounded-lg object-cover bg-dark-800">
+                    <div class="overflow-hidden flex-1">
+                        <p id="userName" class="text-xs font-bold text-white truncate">مستخدم</p>
+                        <button id="logoutBtn" class="text-[10px] text-red-400 mt-1 flex items-center gap-1"><i class="ph-bold ph-sign-out"></i> خروج</button>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="flex-1 relative flex flex-col bg-[#0a0a0b] overflow-hidden w-full">
+            
+            <!-- ================= CHAT SECTION ================= -->
+            <div id="chatSection" class="absolute inset-0 flex flex-col transition-opacity duration-300 opacity-100 z-10 w-full">
+                <!-- Chat Header -->
+                <header class="flex items-center justify-between p-3 border-b border-[#27272a] bg-[#121214] shrink-0">
+                    <div class="flex items-center gap-2">
+                        <i class="ph-fill ph-cpu text-brand-500"></i>
+                        <h2 class="font-bold text-white text-sm" id="activeModelName">Llama 3 70b</h2>
+                    </div>
+                    <!-- Simple Model Toggle -->
+                    <select id="modelSelect" class="bg-[#0a0a0b] text-gray-300 text-xs border border-[#27272a] rounded-lg p-1.5 outline-none">
+                        <option value="llama">Llama 3 (سريع)</option>
+                        <option value="deepseek">DeepSeek (متقدم)</option>
+                    </select>
+                </header>
+
+                <!-- Chat Messages -->
+                <div id="chatMessages" class="flex-1 overflow-y-auto scrollable p-4 flex flex-col gap-4">
+                    <div class="chat-bubble-ai flex gap-3 items-start">
+                        <div class="w-8 h-8 rounded-lg bg-brand-500 flex items-center justify-center shrink-0 text-white"><i class="ph-bold ph-robot"></i></div>
+                        <p class="text-sm text-gray-300">أهلاً بك! أنا مساعدك الذكي السريع. كيف يمكنني مساعدتك؟</p>
+                    </div>
+                </div>
+                
+                <!-- Chat Input -->
+                <div class="p-3 bg-[#121214] border-t border-[#27272a] shrink-0">
+                    <div class="relative flex items-end gap-2">
+                        <button id="clearChatBtn" class="mb-1 text-gray-500 p-2 bg-[#27272a] rounded-lg shrink-0"><i class="ph-bold ph-trash"></i></button>
+                        <textarea id="chatInput" rows="1" placeholder="اكتب رسالتك..." class="input-premium w-full resize-none py-3 pr-3 pl-12 max-h-32 scrollable text-sm"></textarea>
+                        <button id="sendChatBtn" class="absolute left-1 bottom-1 bg-brand-500 text-white w-10 h-10 flex items-center justify-center rounded-xl disabled:opacity-50 shrink-0">
+                            <i class="ph-bold ph-paper-plane-right rtl:rotate-180"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================= STUDIO SECTION ================= -->
+            <div id="studioSection" class="absolute inset-0 flex flex-col md:flex-row transition-opacity duration-300 opacity-0 pointer-events-none z-0 w-full bg-[#0a0a0b] overflow-y-auto scrollable">
+                
+                <!-- Tools Panel -->
+                <div class="w-full md:w-80 flex flex-col gap-4 p-4 shrink-0 border-l border-[#27272a]">
+                    
+                    <!-- Promo Code Box -->
+                    <div class="glass-panel p-4">
+                        <h3 class="text-xs font-bold text-gray-400 mb-2"><i class="ph-bold ph-key"></i> التفعيل السري</h3>
+                        <div class="flex gap-2 relative">
+                            <input type="text" id="promoInput" placeholder="أدخل الكود..." class="input-premium w-full p-2 text-sm uppercase">
+                            <button id="redeemBtn" class="btn-brand px-3 text-sm shrink-0">تفعيل</button>
+                        </div>
+                        <div id="promoMessage" class="text-xs mt-2 hidden font-bold"></div>
+                    </div>
+
+                    <!-- Generation Settings -->
+                    <div class="glass-panel p-4 flex-1 flex flex-col">
+                        <h3 class="text-xs font-bold text-gray-400 mb-2"><i class="ph-bold ph-image"></i> توليد الصور</h3>
+                        <textarea id="promptInput" rows="4" placeholder="صف الصورة بدقة..." class="input-premium w-full resize-none text-sm mb-3"></textarea>
+                        
+                        <div class="mb-4 flex gap-2">
+                            <label class="flex-1 text-center bg-[#27272a] p-2 rounded-lg cursor-pointer border border-transparent has-[:checked]:border-brand-500 has-[:checked]:text-brand-400 text-xs font-bold text-gray-300">
+                                واقعي
+                                <input type="radio" name="img_style" value="realistic" checked class="hidden">
+                            </label>
+                            <label class="flex-1 text-center bg-[#27272a] p-2 rounded-lg cursor-pointer border border-transparent has-[:checked]:border-brand-500 has-[:checked]:text-brand-400 text-xs font-bold text-gray-300">
+                                إبداعي
+                                <input type="radio" name="img_style" value="creative" class="hidden">
+                            </label>
+                        </div>
+                        
+                        <button id="generateBtn" class="btn-brand w-full py-3 mt-auto text-sm flex justify-center items-center gap-2">
+                            <i class="ph-bold ph-magic-wand"></i> توليد الصورة (1 نقطة)
+                        </button>
+                        <div id="generateError" class="text-red-400 text-xs text-center mt-2 hidden"></div>
+                    </div>
+                </div>
+
+                <!-- Canvas & Gallery -->
+                <div class="flex-1 flex flex-col p-4 md:p-0">
+                    <!-- Canvas -->
+                    <div class="flex-1 relative flex items-center justify-center bg-[#0a0a0b] md:border-b border-[#27272a] min-h-[300px] rounded-xl md:rounded-none border border-[#27272a] md:border-none mb-4 md:mb-0">
+                        <div id="emptyState" class="text-center text-gray-600">
+                            <i class="ph-thin ph-images text-4xl mb-2 block"></i>
+                            <p class="text-xs font-bold">المساحة جاهزة</p>
+                        </div>
+                        
+                        <div id="loadingState" class="hidden absolute inset-0 bg-[#0a0a0b]/80 flex flex-col items-center justify-center z-20">
+                            <div class="ai-loader mb-3"></div>
+                            <p class="text-brand-400 text-xs">جاري التوليد...</p>
+                        </div>
+                        
+                        <img id="resultImage" class="hidden relative z-10 w-full h-full object-contain p-2">
+                        
+                        <button id="downloadBtn" class="hidden absolute bottom-4 left-4 z-30 bg-brand-500 text-white w-10 h-10 rounded-xl shadow-lg flex items-center justify-center">
+                            <i class="ph-bold ph-download-simple text-xl"></i>
+                        </button>
+                    </div>
+
+                    <!-- Gallery -->
+                    <div class="p-3 bg-[#121214] shrink-0 overflow-x-auto scrollable border-t border-[#27272a]">
+                        <h3 class="text-[10px] text-gray-500 mb-2">السجل</h3>
+                        <div id="galleryGrid" class="flex gap-2">
+                            <p id="emptyGallery" class="text-[10px] text-gray-600">لا توجد صور</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, signInWithCustomToken, signInAnonymously, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc, collection, onSnapshot, addDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        
+        // Firebase Setup
+        const userFirebaseConfig = {
+            apiKey: "AIzaSyBXomXuAuFqAclYJE_2dOsQZGChvsXOruY", authDomain: "m-1234-72271.firebaseapp.com",
+            projectId: "m-1234-72271", storageBucket: "m-1234-72271.firebasestorage.app",
+            messagingSenderId: "1067856732385", appId: "1:1067856732385:web:1d02db6baf7ab22c6b17a0"
+        };
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : userFirebaseConfig;
+        const appId = typeof __app_id !== 'undefined' ? __app_id : "pol-app";
+        
+        const GROQ_API_KEY = "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";
+        const GEMINI_API_KEY = ""; 
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        
+        // DOM Elements
+        const authScreen = document.getElementById('authScreen');
+        const pointsDisplay = document.getElementById('pointsDisplay');
+        const userAvatar = document.getElementById('userAvatar');
+        const userName = document.getElementById('userName');
+        
+        // Mobile Sidebar Logic
+        const sidebar = document.getElementById('sidebar');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        
+        function toggleMobileMenu() {
+            sidebar.classList.toggle('translate-x-full');
+            sidebarOverlay.classList.toggle('hidden');
+        }
+        mobileMenuBtn.addEventListener('click', toggleMobileMenu);
+        sidebarOverlay.addEventListener('click', toggleMobileMenu);
+
+        // Tab Switching Logic
+        const navChatBtn = document.getElementById('navChatBtn');
+        const navStudioBtn = document.getElementById('navStudioBtn');
+        const chatSection = document.getElementById('chatSection');
+        const studioSection = document.getElementById('studioSection');
+
+        function switchTab(tab) {
+            if(window.innerWidth < 768) toggleMobileMenu(); // Close menu on mobile
+            if (tab === 'chat') {
+                navChatBtn.classList.add('active'); navStudioBtn.classList.remove('active');
+                chatSection.classList.remove('opacity-0', 'pointer-events-none', 'z-0');
+                chatSection.classList.add('opacity-100', 'z-10');
+                studioSection.classList.add('opacity-0', 'pointer-events-none', 'z-0');
+                studioSection.classList.remove('opacity-100', 'z-10');
+            } else {
+                navStudioBtn.classList.add('active'); navChatBtn.classList.remove('active');
+                studioSection.classList.remove('opacity-0', 'pointer-events-none', 'z-0');
+                studioSection.classList.add('opacity-100', 'z-10');
+                chatSection.classList.add('opacity-0', 'pointer-events-none', 'z-0');
+                chatSection.classList.remove('opacity-100', 'z-10');
+            }
+        }
+        navChatBtn.addEventListener('click', () => switchTab('chat'));
+        navStudioBtn.addEventListener('click', () => switchTab('studio'));
+
+        // Auth Logic
+        let currentUser = null;
+        let profileUnsubscribe = null;
+        let galleryUnsubscribe = null;
+
+        const initAuth = async () => {
+            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                await signInWithCustomToken(auth, __initial_auth_token).catch(()=>{});
+            }
+        };
+        initAuth();
+
+        document.getElementById('googleLoginBtn').addEventListener('click', async (e) => {
+            const btn = e.target.closest('button');
+            btn.innerHTML = '<div class="ai-loader"></div>';
+            try { await signInWithPopup(auth, new GoogleAuthProvider()); } 
+            catch { signInAnonymously(auth).catch(()=> {
+                document.getElementById('authError').innerText = "فشل تسجيل الدخول";
+                document.getElementById('authError').classList.remove('hidden');
+                btn.innerHTML = "محاولة مرة أخرى";
+            });}
+        });
+
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            if(profileUnsubscribe) profileUnsubscribe();
+            if(galleryUnsubscribe) galleryUnsubscribe();
+            signOut(auth);
+        });
+
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                currentUser = user;
+                userAvatar.src = user.photoURL || `https://ui-avatars.com/api/?background=6366f1&color=fff&name=${user.displayName || 'U'}`;
+                userName.innerText = user.displayName || 'مستخدم';
+                authScreen.style.display = 'none';
+                await setupData(user.uid);
+            } else {
+                currentUser = null;
+                authScreen.style.display = 'flex';
+            }
+        });
+
+        // Helper: Get robust path for user profile document
+        const getProfileRef = (uid) => doc(db, 'artifacts', appId, 'users', uid, 'data', 'profile');
+
+        async function setupData(uid) {
+            const profileRef = getProfileRef(uid);
+            try {
+                // Ensure doc exists to prevent null reference errors later
+                const docSnap = await getDoc(profileRef);
+                if (!docSnap.exists()) {
+                    await setDoc(profileRef, { points: 15, usedCodes: [], lastWheelSpin: 0 });
+                }
+                
+                profileUnsubscribe = onSnapshot(profileRef, (snap) => {
+                    const data = snap.data();
+                    if(data) {
+                        pointsDisplay.innerText = data.points >= 99999 ? '∞' : data.points;
+                        document.getElementById('generateBtn').disabled = (data.points < 1 && data.points < 99999);
+                    }
+                });
+
+                // Setup Gallery
+                const galleryRef = collection(db, 'artifacts', appId, 'users', uid, 'gallery');
+                galleryUnsubscribe = onSnapshot(query(galleryRef, orderBy('timestamp', 'desc')), (snap) => {
+                    const grid = document.getElementById('galleryGrid');
+                    grid.innerHTML = '';
+                    if (snap.empty) { grid.appendChild(document.getElementById('emptyGallery')); document.getElementById('emptyGallery').style.display='block'; return; }
+                    document.getElementById('emptyGallery').style.display='none';
+                    
+                    snap.forEach(d => {
+                        const imgData = d.data();
+                        const div = document.createElement('div');
+                        div.className = 'w-16 h-16 shrink-0 rounded-lg overflow-hidden border border-[#27272a] cursor-pointer';
+                        div.innerHTML = `<img src="${imgData.url}" class="w-full h-full object-cover">`;
+                        div.onclick = () => {
+                            document.getElementById('resultImage').src = imgData.fullUrl || imgData.url;
+                            document.getElementById('resultImage').classList.remove('hidden');
+                            document.getElementById('emptyState').classList.add('hidden');
+                            document.getElementById('downloadBtn').classList.remove('hidden');
+                            document.getElementById('downloadBtn').onclick = () => {
+                                const a = document.createElement('a'); a.href = imgData.fullUrl || imgData.url; a.download = 'pol_image.jpg'; a.click();
+                            };
+                        };
+                        grid.appendChild(div);
+                    });
+                });
+
+                checkWheel(uid);
+            } catch(e) { console.error("DB Setup Error", e); }
+        }
+
+        // Promo Codes Logic (FIXED SERVER ERROR)
+        const PROMO_CODES = {
+            'WELCOME2026': 50, 'POL_VIP': 100, 'FREEGEN': 10, 'MSK_ORG': 25, 
+            'LLAMA_CHAT': 15, 'DEEPSEEK': 20, 'ARTIST_POL': 30, 'MEGA_BONUS': 200, 
+            'DAILY_LUCK': 5, 'UNLIMITED_POWER': 999999
+        };
+
+        function showMsg(el, text, isErr) {
+            el.innerText = text; el.className = `text-xs mt-2 font-bold ${isErr?'text-red-400':'text-green-400'} block`;
+            setTimeout(() => el.classList.add('hidden'), 3000);
+        }
+
+        document.getElementById('redeemBtn').addEventListener('click', async () => {
+            if (!currentUser) return;
+            const btn = document.getElementById('redeemBtn');
+            const code = document.getElementById('promoInput').value.trim().toUpperCase();
+            if (!code) return;
+            
+            btn.disabled = true;
+            try {
+                const profileRef = getProfileRef(currentUser.uid);
+                const docSnap = await getDoc(profileRef);
+                
+                // FIXED: Robust check if data exists
+                let data = { points: 0, usedCodes: [] };
+                if (docSnap.exists()) { data = docSnap.data(); }
+                const usedCodes = data.usedCodes || [];
+                
+                if (usedCodes.includes(code)) {
+                    showMsg(document.getElementById('promoMessage'), 'تم استخدام هذا الكود', true);
+                } else if (!PROMO_CODES[code]) {
+                    showMsg(document.getElementById('promoMessage'), 'كود غير صحيح', true);
+                } else {
+                    const pts = PROMO_CODES[code];
+                    await setDoc(profileRef, { ...data, points: (pts === 999999 ? pts : data.points + pts), usedCodes: [...usedCodes, code] });
+                    showMsg(document.getElementById('promoMessage'), `مبروك! ربحت ${pts} نقطة`, false);
+                    document.getElementById('promoInput').value = '';
+                }
+            } catch (err) {
+                console.error(err);
+                showMsg(document.getElementById('promoMessage'), 'حدث خطأ، حاول مجدداً', true);
+            }
+            btn.disabled = false;
+        });
+
+        // Wheel Logic
+        let wheelInterval;
+        function checkWheel(uid) {
+            getDoc(getProfileRef(uid)).then(docSnap => {
+                if(!docSnap.exists()) return;
+                const lastSpin = docSnap.data().lastWheelSpin || 0;
+                const updateTimer = () => {
+                    const msLeft = (lastSpin + 86400000) - Date.now();
+                    const btn = document.getElementById('spinWheelBtn');
+                    const timer = document.getElementById('wheelTimer');
+                    if (msLeft <= 0) {
+                        btn.disabled = false; btn.innerText = "تدوير العجلة";
+                        timer.classList.add('hidden'); clearInterval(wheelInterval);
+                    } else {
+                        btn.disabled = true; btn.innerText = "غير متاح";
+                        timer.innerText = `متاح بعد: ${Math.floor(msLeft / 3600000)} ساعة`;
+                        timer.classList.remove('hidden');
+                    }
+                };
+                updateTimer(); wheelInterval = setInterval(updateTimer, 60000);
+            });
+        }
+
+        document.getElementById('openWheelBtn').onclick = () => { document.getElementById('wheelModal').classList.remove('hidden'); };
+        document.getElementById('closeWheelBtn').onclick = () => { document.getElementById('wheelModal').classList.add('hidden'); };
+        
+        document.getElementById('spinWheelBtn').onclick = async () => {
+            if(!currentUser) return;
+            const btn = document.getElementById('spinWheelBtn');
+            const wheel = document.getElementById('wheelInner');
+            btn.disabled = true;
+            
+            const randomSlice = Math.floor(Math.random() * 8);
+            const targetDegree = (360 * 4) + (360 - (randomSlice * 45) - 22.5);
+            wheel.style.transform = `rotate(${targetDegree}deg)`;
+            
+            setTimeout(async () => {
+                const prizes = [10, 1, 5, 0, 20, 2, 50, 3];
+                const prize = prizes[randomSlice];
+                
+                const profileRef = getProfileRef(currentUser.uid);
+                const docSnap = await getDoc(profileRef);
+                const data = docSnap.exists() ? docSnap.data() : { points: 0 };
+                
+                await setDoc(profileRef, { ...data, points: (data.points >= 99999 ? data.points : data.points + prize), lastWheelSpin: Date.now() });
+                btn.innerText = prize > 0 ? `ربحت ${prize} نقطة 🎉` : `حظ أوفر!`;
+                
+                checkWheel(currentUser.uid);
+                setTimeout(() => {
+                    wheel.style.transition = 'none'; wheel.style.transform = 'rotate(0deg)';
+                    void wheel.offsetWidth; wheel.style.transition = 'transform 3s';
+                }, 2000);
+            }, 3000);
+        };
+
+        // Generation Logic
+        document.getElementById('generateBtn').onclick = async () => {
+            if (!currentUser) return;
+            const prompt = document.getElementById('promptInput').value.trim();
+            if(!prompt) return showMsg(document.getElementById('generateError'), 'اكتب وصفاً', true);
+            
+            const btn = document.getElementById('generateBtn');
+            const profileRef = getProfileRef(currentUser.uid);
+            const docSnap = await getDoc(profileRef);
+            const data = docSnap.exists() ? docSnap.data() : { points: 0 };
+            
+            if (data.points < 1 && data.points < 99999) return showMsg(document.getElementById('generateError'), 'رصيد غير كافٍ', true);
+            
+            btn.disabled = true;
+            document.getElementById('emptyState').classList.add('hidden');
+            document.getElementById('loadingState').classList.remove('hidden');
+            
+            try {
+                const style = document.querySelector('input[name="img_style"]:checked').value;
+                const enhanced = style === 'realistic' ? `photorealistic, 8k: ${prompt}` : `creative digital art: ${prompt}`;
+                
+                const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-generate-001:predict?key=${GEMINI_API_KEY}`, {
+                    method: 'POST', body: JSON.stringify({ instances: [{ prompt: enhanced }], parameters: { sampleCount: 1 } })
+                });
+                const apiData = await res.json();
+                const base64 = apiData.predictions?.[0]?.bytesBase64Encoded;
+                if(!base64) throw new Error();
+                
+                const url = `data:image/jpeg;base64,${base64}`;
+                await setDoc(profileRef, { ...data, points: data.points >= 99999 ? data.points : data.points - 1 });
+                await addDoc(collection(db, 'artifacts', appId, 'users', currentUser.uid, 'gallery'), { url: url, fullUrl: url, timestamp: Date.now() });
+                
+                document.getElementById('resultImage').src = url;
+                document.getElementById('resultImage').classList.remove('hidden');
+                document.getElementById('downloadBtn').classList.remove('hidden');
+                document.getElementById('downloadBtn').onclick = () => {
+                    const a = document.createElement('a'); a.href = url; a.download = 'pol_art.jpg'; a.click();
+                };
+                
+            } catch(e) {
+                showMsg(document.getElementById('generateError'), 'فشل التوليد', true);
+                document.getElementById('emptyState').classList.remove('hidden');
+            }
+            document.getElementById('loadingState').classList.add('hidden');
+            btn.disabled = false;
+        };
+
+        // Chat Logic
+        let isChatting = false; let chatHistory = [];
+        
+        document.getElementById('modelSelect').onchange = (e) => {
+            document.getElementById('activeModelName').innerText = e.target.value === 'llama' ? 'Llama 3 70b' : 'DeepSeek Coder';
+        };
+
+        const appendMsg = (txt, isUser) => {
+            const div = document.createElement('div');
+            if (isUser) {
+                div.className = 'chat-bubble-user text-sm whitespace-pre-wrap'; div.innerText = txt;
+            } else {
+                div.className = 'chat-bubble-ai flex gap-2 items-start text-sm text-gray-300';
+                div.innerHTML = `<div class="w-6 h-6 rounded bg-brand-500 text-white flex items-center justify-center shrink-0"><i class="ph-bold ph-robot"></i></div><div class="whitespace-pre-wrap pt-1">${txt}</div>`;
+            }
+            const box = document.getElementById('chatMessages');
+            box.appendChild(div); box.scrollTop = box.scrollHeight;
+        };
+
+        const handleChat = async () => {
+            const input = document.getElementById('chatInput');
+            const text = input.value.trim();
+            if(!text || isChatting) return;
+            
+            input.value = ''; input.style.height = 'auto';
+            appendMsg(text, true);
+            isChatting = true;
+            document.getElementById('sendChatBtn').innerHTML = '<div class="ai-loader"></div>';
+            
+            const model = document.getElementById('modelSelect').value;
+            
+            try {
+                let reply = "";
+                if(model === 'llama') {
+                    chatHistory.push({role: "user", content: text});
+                    const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+                        method: "POST", headers: { "Authorization": `Bearer ${GROQ_API_KEY}`, "Content-Type": "application/json" },
+                        body: JSON.stringify({ model: "llama3-70b-8192", messages: [{role: "system", content: "You are Llama, an AI for POL Platform. Reply in Arabic."}, ...chatHistory] })
+                    });
+                    const d = await res.json(); reply = d.choices[0].message.content;
+                    chatHistory.push({role: "assistant", content: reply});
+                } else {
+                    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${GEMINI_API_KEY}`, {
+                        method: 'POST', body: JSON.stringify({ contents: [{role: "user", parts: [{text: text}]}], systemInstruction: { parts: [{ text: "You are DeepSeek coder AI. Reply in Arabic." }] } })
+                    });
+                    const d = await res.json(); reply = d.candidates[0].content.parts[0].text;
+                }
+                appendMsg(reply, false);
+            } catch(e) {
+                appendMsg("حدث خطأ في الاتصال بالذكاء الاصطناعي.", false);
+            }
+            
+            isChatting = false;
+            document.getElementById('sendChatBtn').innerHTML = '<i class="ph-bold ph-paper-plane-right rtl:rotate-180"></i>';
+        };
+
+        document.getElementById('sendChatBtn').onclick = handleChat;
+        document.getElementById('chatInput').onkeydown = (e) => { if(e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleChat(); }};
+        document.getElementById('clearChatBtn').onclick = () => { chatHistory = []; document.getElementById('chatMessages').innerHTML = ''; appendMsg('تم مسح المحادثة. كيف يمكنني مساعدتك؟', false); };
+
+    </script>
+</body>
+</html>
+
+
